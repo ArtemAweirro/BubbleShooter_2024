@@ -1,6 +1,6 @@
 package ru.itschool.bubbleshooter;
 
-import static ru.itschool.bubbleshooter.ScreenGame.SCR_WIDTH;
+import static ru.itschool.bubbleshooter.ScreenGame.SCR_HEIGHT;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -19,16 +19,16 @@ public class BuButton {
         GlyphLayout gl = new GlyphLayout(font, text);
         width = gl.width;
         height = gl.height;
-        this.x -= width/2;
+        this.x -= (int) (width/2);
     }
     boolean isHit(float tx, float ty){
         return tx>x && tx<x+width && ty<y && ty>y-height;
     }
 
     void moveUP(){
-        y = y + SCR_WIDTH/4;
+        y = y - SCR_HEIGHT/Map.MAX_COUNT_STEP;
     }
     void moveDOWN(){
-        y = y - SCR_WIDTH/4;
+        y = y + SCR_HEIGHT/Map.MAX_COUNT_STEP;
     }
 }

@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 public class ScreenMenu implements Screen {
 
@@ -23,7 +22,7 @@ public class ScreenMenu implements Screen {
 
     Sound sndClick;
 
-    BitmapFont font, fontName;
+    BitmapFont fontBtn, fontName;
     BuButton btnPlay, btnExit, btnSetting;
 
     public ScreenMenu(BubbleShooter bub) {
@@ -39,17 +38,18 @@ public class ScreenMenu implements Screen {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("appetite.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.characters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;:,{}\"´`'<>";
+        parameter.characters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
         parameter.size = SCR_WIDTH/9;
         parameter.color = Color.valueOf("#5C349A");
-        font = generator.generateFont(parameter);
+        fontBtn = generator.generateFont(parameter);
 
-        parameter.size = SCR_WIDTH/6;
+        parameter.size = SCR_WIDTH/5;
+        parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         fontName = generator.generateFont(parameter);
 
-        btnPlay = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*57/100, font, "ИГРАТЬ");
-        btnSetting = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*17/100, font, "НАСТРОЙКИ");
-        btnExit = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*9/100, font, "ВЫХОД");
+        btnPlay = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*57/100, fontBtn, "ИГРАТЬ");
+        btnSetting = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*17/100, fontBtn, "НАСТРОЙКИ");
+        btnExit = new BuButton(SCR_WIDTH/2, SCR_HEIGHT*9/100, fontBtn, "ВЫХОД");
         bub.screenSettings.loadSettings();
     }
 
@@ -80,11 +80,11 @@ public class ScreenMenu implements Screen {
         bub.batch.setProjectionMatrix(bub.camera.combined);
         bub.batch.begin();
         bub.batch.draw(imgBackground, 0, 0, SCR_WIDTH, SCR_HEIGHT);
-        fontName.draw(bub.batch, "Bubble", SCR_WIDTH*8/100f, SCR_HEIGHT*92/100f);
-        fontName.draw(bub.batch, "Shooter", SCR_WIDTH*32/100f, SCR_HEIGHT*80/100f);
-        font.draw(bub.batch, btnPlay.text, btnPlay.x, btnPlay.y);
-        font.draw(bub.batch, btnSetting.text, btnSetting.x, btnSetting.y);
-        font.draw(bub.batch, btnExit.text, btnExit.x, btnExit.y);
+        fontName.draw(bub.batch, "Bubble", SCR_WIDTH*5/100f, SCR_HEIGHT*92/100f);
+        fontName.draw(bub.batch, "Shooter", SCR_WIDTH*20/100f, SCR_HEIGHT*80/100f);
+        fontBtn.draw(bub.batch, btnPlay.text, btnPlay.x, btnPlay.y);
+        fontBtn.draw(bub.batch, btnSetting.text, btnSetting.x, btnSetting.y);
+        fontBtn.draw(bub.batch, btnExit.text, btnExit.x, btnExit.y);
         bub.batch.end();
     }
 
@@ -112,7 +112,7 @@ public class ScreenMenu implements Screen {
     public void dispose() {
         imgBackground.dispose();
         sndClick.dispose();
-        font.dispose();
+        fontBtn.dispose();
         fontName.dispose();
     }
 }

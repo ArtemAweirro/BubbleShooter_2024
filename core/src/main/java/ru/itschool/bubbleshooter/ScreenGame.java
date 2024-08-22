@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class ScreenGame implements Screen {
-	public static final int SCR_WIDTH = 468;
-	public static final int SCR_HEIGHT = 962;
+    public static final int SCR_WIDTH = Gdx.graphics.getWidth(); // 468
+	public static final int SCR_HEIGHT = Gdx.graphics.getHeight(); // 962
 	public static final int INTERVAL = Ball.height/10; // интервал спавна между шариками
 
 	final BubbleShooter bub;
@@ -29,11 +29,11 @@ public class ScreenGame implements Screen {
 	OrthographicCamera camera;
 	Vector3 touch;
 
-	Texture imgAtlasBall;
+	Texture imgAtlasBall; // 4 разноцветных шарика
 	TextureRegion[] imgBall;
-	Texture imgAtlBallBlue, imgAtlBallOrange, imgAtlBallGreen, imgAtlBallRed;
-	TextureRegion[] imgBallBlue, imgBallOrange, imgBallGreen, imgBallRed;
-	Texture imgBackground1, imgBackground2;
+	Texture imgAtlBallBlue, imgAtlBallGreen, imgAtlBallOrange, imgAtlBallRed;
+	TextureRegion[] imgBallBlue, imgBallGreen, imgBallOrange, imgBallRed;
+	Texture imgBackgroundLevelFirst, imgBackgroundLevelSecond;
 	Texture imgBtnBack, imgFrame;
 
 	Sound sndBulk, sndWin, sndLose;
@@ -60,7 +60,7 @@ public class ScreenGame implements Screen {
 	boolean isEnd = false;
 	boolean isWin = false;
 	boolean isLose = false;
-	boolean isSound = true;
+	boolean isSound = true; // статус звукового сопровождения
 	boolean isTouchBack = false;
 
 	int moves; // кол-во ходов в игре
@@ -76,8 +76,8 @@ public class ScreenGame implements Screen {
 
 		imgBall = new TextureRegion[4];
 		imgAtlasBall = new Texture("atlasBall.png");
-		imgBackground1 = new Texture("imgBackground1.png");
-		imgBackground2 = new Texture("imgBackground2.jpg");
+		imgBackgroundLevelFirst = new Texture("imgBackgroundLevelFirst.png");
+		imgBackgroundLevelSecond = new Texture("imgBackgroundLevelSecond.jpg");
 		imgBtnBack = new Texture("imgBack.png");
 		imgFrame = new Texture("frame.jpg");
 		for (int i = 0; i < imgBall.length; i++)
@@ -87,18 +87,16 @@ public class ScreenGame implements Screen {
 		imgAtlBallGreen = new Texture("atlasBallGreen.png");
 		imgAtlBallOrange = new Texture("atlasBallOrange.png");
 		imgAtlBallRed = new Texture("atlasBallRed.png");
-		imgBallBlue = new TextureRegion[3];
-		for (int i = 0; i < imgBallBlue.length; i++)
-			imgBallBlue[i] = new TextureRegion(imgAtlBallBlue, i*300, 0, 300, 300);
+
+        imgBallBlue = new TextureRegion[3];
+        createImgBallRegions(imgAtlBallBlue, imgBallBlue);
 		imgBallGreen = new TextureRegion[3];
-		for (int i = 0; i < imgBallGreen.length; i++)
-			imgBallGreen[i] = new TextureRegion(imgAtlBallGreen, i*300, 0, 300, 300);
+        createImgBallRegions(imgAtlBallGreen, imgBallGreen);
 		imgBallOrange = new TextureRegion[3];
-		for (int i = 0; i < imgBallOrange.length; i++)
-			imgBallOrange[i] = new TextureRegion(imgAtlBallOrange, i*300, 0, 300, 300);
+        createImgBallRegions(imgAtlBallOrange, imgBallOrange);
 		imgBallRed = new TextureRegion[3];
-		for (int i = 0; i < imgBallRed.length; i++)
-			imgBallRed[i] = new TextureRegion(imgAtlBallRed, i*300, 0, 300, 300);
+        createImgBallRegions(imgAtlBallRed, imgBallRed);
+
 
 		sndBulk = Gdx.audio.newSound(Gdx.files.internal("sndBulk.mp3"));
 		sndWin = Gdx.audio.newSound(Gdx.files.internal("sndWin.mp3"));
@@ -116,12 +114,11 @@ public class ScreenGame implements Screen {
 		parameter.color = Color.valueOf("#8B0000"); //#960018 был
 		fontWin = generator.generateFont(parameter);
 
-		balls = new ArrayList<>();
+		balls = new ArrayList<>(); // шарики на поле игры
 		ballsAnimate = new ArrayList<>();
 		ballsIndexDelete = new ArrayList<>();
 		ballsDelete = new ArrayList<>();
 		oldMainBalls = new ArrayList<>();
-
 
 		frame = new Frame();
 
@@ -130,6 +127,11 @@ public class ScreenGame implements Screen {
 		btnReturn = new BuButton(SCR_WIDTH*2/3, SCR_HEIGHT*4/10, fontWin, "вернуться");
 		btnBack = new Button(SCR_WIDTH/2f - Ball.width/4f,SCR_HEIGHT - Ball.width*8/10f, ScreenGame.SCR_WIDTH/15f, ScreenGame.SCR_WIDTH/15f);
 	}
+
+    void createImgBallRegions(Texture imgAtlasBall, TextureRegion[] imgRegion) {
+        for (int i = 0; i < imgRegion.length; i++)
+            imgRegion[i] = new TextureRegion(imgAtlasBall, i*300, 0, 300, 300);
+    }
 
 	void spawnBalls(){
 		switch (LEVEL){
@@ -155,7 +157,6 @@ public class ScreenGame implements Screen {
 				break;
 		}
 	}
-
 
 	int placeYInRow(Ball ball){ // определение места шарика по вертикали
 		int k = 1;
@@ -295,7 +296,7 @@ public class ScreenGame implements Screen {
 		if (isSound) musBackground.play();
 	}
 
-	void drawFazes(Ball ball){
+	void drawFazes(Ball ball){ // рисование разрушения шариков
 		switch (ball.type){
 			case 0: batch.draw(imgBallBlue[ball.faza], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
 				break;
@@ -329,15 +330,17 @@ public class ScreenGame implements Screen {
 	@Override
 	public void render(float delta) {
 		// игровые события
-		if (isStart){
+		if (isStart) { // если уровень только запустился
 			isStart = false;
 			if (isSound) {
 				musBackground.setVolume(0.15f);
 				musBackground.play();
 			}
 		}
-		if (isSound && !musBackground.isPlaying() && !isWin && !isLose)
-			musBackground.play();
+		if (isSound && !musBackground.isPlaying() && !isWin && !isLose) {
+            // если фоновая музыка закончилась, запускает заново
+            musBackground.play();
+        }
 		if (Gdx.input.justTouched()) {
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch); // масштабирование всех координат
@@ -464,15 +467,18 @@ public class ScreenGame implements Screen {
 		batch.setProjectionMatrix(camera.combined); // масштабирование всех координат
 		batch.begin();
 		if (LEVEL <= 3)
-			batch.draw(imgBackground1, 0, 0, SCR_WIDTH, SCR_HEIGHT);
+			batch.draw(imgBackgroundLevelFirst, 0, 0, SCR_WIDTH, SCR_HEIGHT);
 		else
-			batch.draw(imgBackground2, 0, 0, SCR_WIDTH, SCR_HEIGHT);
-		if (!isLose && LEVEL != 6) font.draw(batch, Integer.toString(moves), SCR_WIDTH*55/100f, SCR_HEIGHT/20f);
+			batch.draw(imgBackgroundLevelSecond, 0, 0, SCR_WIDTH, SCR_HEIGHT);
+		if (!isLose && LEVEL != 6) {
+            // рисование количества оставшихся ходов (6 уровень - бесконечный, поэтому исключение)
+            font.draw(batch, Integer.toString(moves), SCR_WIDTH * 55 / 100f, SCR_HEIGHT / 20f);
+        }
 		font.draw(batch, "СЧЁТ: " + score, 0, SCR_HEIGHT - Ball.width/6f);
 		font.draw(batch, "УРОВЕНЬ: " + LEVEL, SCR_WIDTH*62/100f, SCR_HEIGHT - Ball.width/6f);
 		for (int i = 0; i < ballsAnimate.size(); i++)
 			drawFazes(ballsAnimate.get(i));
-		for (int i = 0; i < balls.size(); i++)
+		for (int i = 0; i < balls.size(); i++) // рисование всех шариков на поле
 			batch.draw(imgBall[balls.get(i).type],balls.get(i).x - Ball.width/2f, balls.get(i).y - Ball.height/2f, Ball.width, Ball.height);
 		if (!balls.isEmpty())
 			batch.draw(imgBall[mainBall.type], mainBall.x - Ball.width/2f, mainBall.y - Ball.height/2f, Ball.width, Ball.height);
@@ -525,8 +531,8 @@ public class ScreenGame implements Screen {
 		imgAtlBallGreen.dispose();
 		imgAtlBallOrange.dispose();
 		imgAtlBallRed.dispose();
-		imgBackground1.dispose();
-		imgBackground2.dispose();
+		imgBackgroundLevelFirst.dispose();
+		imgBackgroundLevelSecond.dispose();
 		imgBtnBack.dispose();
 		imgFrame.dispose();
 		font.dispose();
