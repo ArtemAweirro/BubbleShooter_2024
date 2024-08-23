@@ -1,5 +1,7 @@
 package ru.itschool.bubbleshooter;
 
+import static ru.itschool.bubbleshooter.ScreenGame.INTERVAL;
+
 import com.badlogic.gdx.math.MathUtils;
 
 import java.util.ArrayList;
@@ -18,9 +20,9 @@ public class MainBall extends Ball{
     }
 
     void move(){
-        x += vx;
-        y += vy;
-        if (x > ScreenGame.SCR_WIDTH - Ball.width/2 || x < Ball.width/2) vx = -vx;
+        x += (int) vx;
+        y += (int) vy;
+        if (x > ScreenGame.SCR_WIDTH - Ball.width/2 - 2*INTERVAL || x < Ball.width/2 + 2*INTERVAL) vx = -vx;
     }
 
     boolean overlap(Ball ball){

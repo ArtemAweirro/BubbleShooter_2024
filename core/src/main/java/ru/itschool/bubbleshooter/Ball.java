@@ -3,7 +3,7 @@ package ru.itschool.bubbleshooter;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Ball {
-    static int size = 11;
+    static int size = 10;
     int x, y;
 
     static int width;
@@ -11,9 +11,9 @@ public class Ball {
     int type;
     int placeX, placeY; // место в ряду
     boolean isExist;
-    int faza;
+    int phase;
     static int nFaz = 3;
-    long timeFazaInterval = 100, timeLastFazaShow;
+    long timePhaseInterval = 100, timeLastPhaseShow;
 
     public Ball(int x, int y, int type, int placeX, int placeY) {
         this.x = x;
@@ -22,13 +22,13 @@ public class Ball {
         this.placeX = placeX;
         this.placeY = placeY;
         isExist = true;
-        faza = 0;
+        phase = 0;
     }
 
     void animation(){
-        if (TimeUtils.millis() - timeLastFazaShow >= timeFazaInterval){
-            faza++;
-            timeLastFazaShow = TimeUtils.millis();
+        if (TimeUtils.millis() - timeLastPhaseShow >= timePhaseInterval){
+            phase++;
+            timeLastPhaseShow = TimeUtils.millis();
         }
     }
 }

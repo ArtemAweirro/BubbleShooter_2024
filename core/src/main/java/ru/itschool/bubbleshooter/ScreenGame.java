@@ -56,8 +56,6 @@ public class ScreenGame implements Screen {
 
 	int LEVEL;
 	int countRows;
-	boolean isStart = true;
-	boolean isEnd = false;
 	boolean isWin = false;
 	boolean isLose = false;
 	boolean isSound = true; // статус звукового сопровождения
@@ -67,7 +65,8 @@ public class ScreenGame implements Screen {
 	int score = 0;
 	int record;
 
-	public ScreenGame(BubbleShooter bub) {
+	@SuppressWarnings("SuspiciousIndentation")
+    public ScreenGame(BubbleShooter bub) {
 		this.bub = bub;
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
@@ -90,13 +89,12 @@ public class ScreenGame implements Screen {
 
         imgBallBlue = new TextureRegion[3];
         createImgBallRegions(imgAtlBallBlue, imgBallBlue);
-		imgBallGreen = new TextureRegion[3];
+        imgBallGreen = new TextureRegion[3];
         createImgBallRegions(imgAtlBallGreen, imgBallGreen);
-		imgBallOrange = new TextureRegion[3];
+        imgBallOrange = new TextureRegion[3];
         createImgBallRegions(imgAtlBallOrange, imgBallOrange);
-		imgBallRed = new TextureRegion[3];
+        imgBallRed = new TextureRegion[3];
         createImgBallRegions(imgAtlBallRed, imgBallRed);
-
 
 		sndBulk = Gdx.audio.newSound(Gdx.files.internal("sndBulk.mp3"));
 		sndWin = Gdx.audio.newSound(Gdx.files.internal("sndWin.mp3"));
@@ -105,7 +103,9 @@ public class ScreenGame implements Screen {
 
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("appetite.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.characters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;:,{}\"´`'<>";
+		parameter.characters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdefghijklmnopqrstuvwxyz" +
+            "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|" +
+            "\\/?-+=()*&.;:,{}\"´`'<>";
 		parameter.size = SCR_WIDTH/15;
 		parameter.color = Color.valueOf("#FFBD88");
 		font = generator.generateFont(parameter);
@@ -158,23 +158,23 @@ public class ScreenGame implements Screen {
 		}
 	}
 
-	int placeYInRow(Ball ball){ // определение места шарика по вертикали
-		int k = 1;
-		for (int i = 1; i <= 24; i++){
-			k += 2;
-			if (SCR_HEIGHT - k*Ball.height/2 + i*INTERVAL == ball.y)
-				return i;
-		}
-		return 0;
-	}
-
-	int placeXInRow(Ball ball){ // определение места шарика по горизонтали
-		for (int i = 1; i <= Ball.size; i++)
-			if ((ball.x == (i-1)*Ball.width + Ball.width/2) ||
-					(ball.x == (i-1)*Ball.width + Ball.width))
-				return i;
-		return 0;
-	}
+//	int placeYInRow(Ball ball){ // определение места шарика по вертикали
+//		int k = 1;
+//		for (int i = 1; i <= 24; i++){
+//			k += 2;
+//			if (SCR_HEIGHT - k*Ball.height/2 + i*INTERVAL == ball.y)
+//				return i;
+//		}
+//		return 0;
+//	}
+//
+//	int placeXInRow(Ball ball){ // определение места шарика по горизонтали
+//		for (int i = 1; i <= Ball.size; i++)
+//			if ((ball.x == (i-1)*Ball.width + Ball.width/2) ||
+//					(ball.x == (i-1)*Ball.width + Ball.width))
+//				return i;
+//		return 0;
+//	}
 
 	void deletion(){
 		for (int i = 0; i < balls.size()-1; i++) {
@@ -285,26 +285,28 @@ public class ScreenGame implements Screen {
 		colorMainBalls.clear();
 	}
 
-	void start(){
-		score = 0;
-		balls.clear();
-		isLose = false;
-		isEnd = false;
-		isWin = false;
-		spawnBalls();
-		spawnNewMainBall();
-		if (isSound) musBackground.play();
+	void start() {
+        score = 0;
+        balls.clear();
+        isLose = false;
+        isWin = false;
+        spawnBalls();
+        spawnNewMainBall();
+        if (isSound) {
+            musBackground.setVolume(0.15f);
+            musBackground.play();
+        }
 	}
 
-	void drawFazes(Ball ball){ // рисование разрушения шариков
+	void drawPhases(Ball ball){ // рисование разрушения шариков
 		switch (ball.type){
-			case 0: batch.draw(imgBallBlue[ball.faza], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
+			case 0: batch.draw(imgBallBlue[ball.phase], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
 				break;
-			case 1: batch.draw(imgBallGreen[ball.faza], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
+			case 1: batch.draw(imgBallGreen[ball.phase], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
 				break;
-			case 2: batch.draw(imgBallOrange[ball.faza], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
+			case 2: batch.draw(imgBallOrange[ball.phase], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
 				break;
-			case 3: batch.draw(imgBallRed[ball.faza], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
+			case 3: batch.draw(imgBallRed[ball.phase], ball.x - Ball.width/2f, ball.y - Ball.height/2f, Ball.width, Ball.height);
 		}
 
 	}
@@ -330,23 +332,45 @@ public class ScreenGame implements Screen {
 	@Override
 	public void render(float delta) {
 		// игровые события
-		if (isStart) { // если уровень только запустился
-			isStart = false;
-			if (isSound) {
-				musBackground.setVolume(0.15f);
-				musBackground.play();
-			}
-		}
 		if (isSound && !musBackground.isPlaying() && !isWin && !isLose) {
             // если фоновая музыка закончилась, запускает заново
             musBackground.play();
         }
+
+        if (balls.isEmpty() && !isLose && !isTouchBack){
+            // Игра выиграна
+            if (!isWin){
+                isWin = true;
+                if (isSound) {
+                    musBackground.stop();
+                    sndWin.play();
+                }
+                saveRecords(score);
+                loadRecords();
+            }
+        }
+
+        if (isLose){
+            // Игра проиграна
+            mainBall.y = -Ball.height; // сомнительно, но окэй
+            musBackground.stop();
+            sndLose.play();
+            saveRecords(score);
+            loadRecords();
+        }
+
+        if (LEVEL != 6 && moves == 0 && !balls.isEmpty() && !mainBall.fly)
+            isLose = true;
+
 		if (Gdx.input.justTouched()) {
+            // Произведено нажатие
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch); // масштабирование всех координат
-			if (!balls.isEmpty() && !mainBall.fly) {
+			if (!isLose && !balls.isEmpty() && !mainBall.fly) {
+                // главный шарик не был в полёте
 				moves -= 1;
 				mainBall.fly = true;
+                // далее задаётся скорость и направление главному шарику
 				mainBall.vx = (touch.x - mainBall.x + Ball.width / 2f) / 70;
 				if (mainBall.vx == 0)
 					mainBall.vy = SCR_HEIGHT / 45f;
@@ -365,59 +389,128 @@ public class ScreenGame implements Screen {
 				}
 			}
 
-			if (LEVEL == 6 && moves%5 == 0 && moves != 0) Levels.moveLevelSix(balls);
+			if (LEVEL == 6 && moves != 0 && moves%5 == 0) {
+                // Добавляем новый ряд в 6 уровне
+                Levels.moveLevelSix(balls);
+            }
+
 			if (btnBack.isHit(touch.x, touch.y)){
+                // Произведено нажатие на маленькую кнопку "назад"
 				isTouchBack = true;
+                musBackground.stop();
 				balls.clear();
 				bub.setScreen(bub.screenLevels);
 			}
-			if (btnRetry.isHit(touch.x, touch.y) && (isWin || isLose))
-				start();
-			if (balls.isEmpty() && btnContinue.isHit(touch.x, touch.y))
+
+			if ((isWin || isLose) && btnRetry.isHit(touch.x, touch.y)) {
+				// При победе/поражении нажата кнопка "повторить"
+                start();
+            }
+
+			if (isWin && btnContinue.isHit(touch.x, touch.y)) {
+                // При победе нажата кнопка "продолжить"
 				bub.setScreen(bub.screenLevels);
-			if (isLose && btnReturn.isHit(touch.x, touch.y)){
+            }
+
+            if (isLose && btnReturn.isHit(touch.x, touch.y)){
+                // При проигрыше нажата кнопка "вернуться"
 				balls.clear();
 				bub.setScreen(bub.screenLevels);
 			}
 		}
 
-		if (moves == 0 && !mainBall.fly && LEVEL != 6)
-			isLose = true;
-
 		if (!balls.isEmpty() && !isLose) mainBall.move();
-		if (!balls.isEmpty() && mainBall.y >= SCR_HEIGHT - Ball.height/2 && !isLose) {
+
+		if (!isLose && !balls.isEmpty() && mainBall.y >= SCR_HEIGHT - Ball.height/2) {
+            // Шарик вылетает за пределы верхнего поля
 			score -= 5;
 			spawnNewMainBall();
 		}
-		for (int i = 0; i < balls.size(); i++){
-			if (balls.get(i).placeY == 23)
-				isLose = true;
+
+		for (int i = 0; i < balls.size(); i++) {
 			if (mainBall.overlap(balls.get(i))) {
-				if (mainBall.y > balls.get(i).y) {
+                // Произошло наложение главного шарика на текущий шарик
+				if (mainBall.y >= balls.get(i).y) {
+                    // Главный шарик наложился выше или на уровне горизонта текущего шарика
 					mainBall.y = balls.get(i).y;
-					if (mainBall.x <= balls.get(i).x && balls.get(i).x != Ball.width/2){
-						mainBall.x = balls.get(i).x - Ball.width;
-					}
-					else if (mainBall.x >= balls.get(i).x && balls.get(i).x != 440) {
-						mainBall.x = balls.get(i).x + Ball.width;
+                    mainBall.placeY = balls.get(i).placeY;
+					if (mainBall.x < balls.get(i).x) {
+                        // Главный шарик наложился СТРОГО левее вертикали текущего шарика
+                        if (balls.get(i).placeX != 1) { // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ЛЕВЕЕ КРАЙНЕГО СЛЕВА
+                            // Текущий шарик не является крайним слева
+                            mainBall.x = balls.get(i).x - Ball.width;
+                            mainBall.placeX = balls.get(i).placeX - 1;
+                        }
+                    }
+					else
+                        // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
+                        if ((balls.get(i).placeX != 11 && balls.get(i).placeY % 2 != 0) || // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ПРАВЕЕ КРАЙНЕГО СПРАВА
+                            (balls.get(i).placeX != 10 && balls.get(i).placeY % 2 == 0)) {
+                            // Текущий шарик НЕ является крайним справа
+						    mainBall.x = balls.get(i).x + Ball.width;
+                            mainBall.placeX = balls.get(i).placeX + 1;
 					}
 				}
 				else {
+                    // Главный шарик наложился ниже горизонта текущего шарика
 					mainBall.y = balls.get(i).y - Ball.height + INTERVAL;
-					if ((balls.get(i).x != Ball.width/2) && (balls.get(i).x != 440)){
-						if (mainBall.x <= balls.get(i).x) mainBall.x = balls.get(i).x - Ball.width/2;
-						else if (mainBall.x >= balls.get(i).x) mainBall.x = balls.get(i).x + Ball.width/2;
-					}
-					else {
-						if (balls.get(i).x == Ball.width/2) mainBall.x = balls.get(i).x + Ball.width/2;
-						if (balls.get(i).x == 440) mainBall.x = balls.get(i).x - Ball.width/2;
-					}
+                    mainBall.placeY = balls.get(i).placeY + 1;
+                    if (mainBall.x < balls.get(i).x) {
+                        // Главный шарик наложился СТРОГО левее вертикали текущего шарика
+                        if (balls.get(i).placeY % 2 == 0) {
+                            // Текущий шарик находится в ЧЁТНОМ ряду
+                            mainBall.x = balls.get(i).x - Ball.width/2;
+                            mainBall.placeX = balls.get(i).placeX; // СЛЕВА место в нечётном = место в чётном
+                        }
+                        else {
+                            // Текущий шарик находится в НЕЧЁТНОМ ряду
+                            if (balls.get(i).placeX != 1) {
+                                // Текущий шарик НЕ является крайним слева
+                                mainBall.x = balls.get(i).x - Ball.width/2;
+                                mainBall.placeX = balls.get(i).placeX - 1;
+                            }
+                            else {
+                                // Текущий шарик является крайним слева
+                                mainBall.x = balls.get(i).x + Ball.width/2;
+                                mainBall.placeX = balls.get(i).placeX; // СПРАВА место в чётном = место в нечётном
+                            }
+                        }
+                    }
+                    else {
+                        // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
+                        if (balls.get(i).placeY % 2 == 0) {
+                            // Текущий шарик находится в ЧЁТНОМ ряду
+                            mainBall.x = balls.get(i).x + Ball.width/2;
+                            mainBall.placeX = balls.get(i).placeX + 1;
+                        }
+                        else {
+                            // Текущий шарик находится в НЕЧЁТНОМ ряду
+                            if (balls.get(i).placeX != 11) {
+                                // Текущий шарик НЕ является крайним справа
+                                mainBall.x = balls.get(i).x + Ball.width/2;
+                                mainBall.placeX = balls.get(i).placeX; // СПРАВА место в чётном = место в нечётном
+                            }
+                            else {
+                                // Текущий шарик является крайним справа
+                                mainBall.x = balls.get(i).x - Ball.width/2;
+                                mainBall.placeX = balls.get(i).placeX - 1;
+                            }
+                        }
+                    }
+//					if ((balls.get(i).placeX != 1) && (balls.get(i).x != 440)){
+//						if (mainBall.x <= balls.get(i).x) mainBall.x = balls.get(i).x - Ball.width/2;
+//						else if (mainBall.x >= balls.get(i).x) mainBall.x = balls.get(i).x + Ball.width/2;
+//					}
+//					else {
+//						if (balls.get(i).x == Ball.width/2) mainBall.x = balls.get(i).x + Ball.width/2;
+//						if (balls.get(i).x == 440) mainBall.x = balls.get(i).x - Ball.width/2;
+//					}
 				}
 				mainBall.vx = 0;
 				mainBall.vy = 0;
 				balls.add(mainBall);
-				balls.get(balls.size()-1).placeX = placeXInRow(balls.get(balls.size()-1));
-				balls.get(balls.size()-1).placeY = placeYInRow(balls.get(balls.size()-1));
+//				balls.get(balls.size()-1).placeX = placeXInRow(balls.get(balls.size()-1)); // думаю стоит это прописать в определении места, а не давать программе думать
+//				balls.get(balls.size()-1).placeY = placeYInRow(balls.get(balls.size()-1));
 				if (balls.get(balls.size()-1).placeY == 23)
 					isLose = true;
 				if (!isLose){
@@ -427,39 +520,19 @@ public class ScreenGame implements Screen {
 				}
 				break;
 			}
+
+            if (LEVEL == 6 && balls.get(i).placeY == 23) {
+                isLose = true;
+            }
 		}
 
 		for (int i = 0; i < ballsAnimate.size(); i++){
 			ballsAnimate.get(i).animation();
-			if (ballsAnimate.get(i).faza == Ball.nFaz){
+			if (ballsAnimate.get(i).phase == Ball.nFaz){
 				ballsAnimate.remove(i);
 			}
 		}
 
-		if (balls.isEmpty() && !isLose && !isTouchBack){
-			if (!isWin && isSound){
-				isWin = true;
-				musBackground.stop();
-				sndWin.play();
-				saveRecords(score);
-				loadRecords();
-			}
-		}
-		if (isSound && isLose){
-			if (!isEnd){
-				isEnd = true;
-				mainBall.y = -Ball.height;
-				musBackground.stop();
-				sndLose.play();
-				saveRecords(score);
-				loadRecords();
-			}
-		}
-
-		if (isTouchBack){
-			isTouchBack = false;
-			musBackground.stop();
-		}
 
 		// рисовка
 		ScreenUtils.clear(0, 0, 0.2f, 0);
@@ -477,7 +550,7 @@ public class ScreenGame implements Screen {
 		font.draw(batch, "СЧЁТ: " + score, 0, SCR_HEIGHT - Ball.width/6f);
 		font.draw(batch, "УРОВЕНЬ: " + LEVEL, SCR_WIDTH*62/100f, SCR_HEIGHT - Ball.width/6f);
 		for (int i = 0; i < ballsAnimate.size(); i++)
-			drawFazes(ballsAnimate.get(i));
+			drawPhases(ballsAnimate.get(i));
 		for (int i = 0; i < balls.size(); i++) // рисование всех шариков на поле
 			batch.draw(imgBall[balls.get(i).type],balls.get(i).x - Ball.width/2f, balls.get(i).y - Ball.height/2f, Ball.width, Ball.height);
 		if (!balls.isEmpty())
