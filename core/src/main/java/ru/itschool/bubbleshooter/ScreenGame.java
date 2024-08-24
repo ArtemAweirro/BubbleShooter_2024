@@ -59,7 +59,6 @@ public class ScreenGame implements Screen {
 	boolean isWin = false;
 	boolean isLose = false;
 	boolean isSound = true; // статус звукового сопровождения
-	boolean isTouchBack = false;
 
 	int moves; // кол-во ходов в игре
 	int score = 0;
@@ -379,7 +378,6 @@ public class ScreenGame implements Screen {
 
 			if (btnBack.isHit(touch.x, touch.y)){
                 // Произведено нажатие на маленькую кнопку "назад"
-				isTouchBack = true;
                 musBackground.stop();
 				balls.clear();
 				bub.setScreen(bub.screenLevels);
@@ -503,7 +501,15 @@ public class ScreenGame implements Screen {
 			}
 		}
 
-        if (balls.isEmpty() && !isLose && !isTouchBack){
+        if (LEVEL != 6 && moves == 0 && !balls.isEmpty() && !mainBall.fly) {
+            // Игра проиграна
+            if (!isLose) {
+                isLose = true;
+                actionsAfterLosing();
+            }
+        }
+
+        if (balls.isEmpty() && !isLose){
             // Игра выиграна
             if (!isWin){
                 isWin = true;
@@ -516,13 +522,7 @@ public class ScreenGame implements Screen {
             }
         }
 
-        if (LEVEL != 6 && moves == 0 && !balls.isEmpty() && !mainBall.fly) {
-            // Игра проиграна
-            if (!isLose) {
-                isLose = true;
-                actionsAfterLosing();
-            }
-        }
+
 
 
 		// рисовка
