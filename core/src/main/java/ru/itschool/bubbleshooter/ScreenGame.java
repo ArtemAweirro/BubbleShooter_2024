@@ -16,12 +16,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class ScreenGame implements Screen {
     public static final int SCR_WIDTH = Gdx.graphics.getWidth(); // 468
 	public static final int SCR_HEIGHT = Gdx.graphics.getHeight(); // 962
 	public static final int INTERVAL = Ball.height/10; // интервал спавна между шариками
+    public static final int MAX_COUNT_IN_ROW = 11; // максимальное количество шариков в строке
+    public static final int MAX_COUNT_ROW = 23; // максимально количество строк
 
 	final BubbleShooter bub;
 
@@ -41,6 +42,8 @@ public class ScreenGame implements Screen {
 
 	BitmapFont font, fontWin;
 
+    Ball[][] markingField;
+
 	ArrayList<Ball> balls;
 	ArrayList<Ball> ballsAnimate;
 	ArrayList<Integer> ballsIndexDelete;
@@ -59,6 +62,8 @@ public class ScreenGame implements Screen {
 	boolean isWin = false;
 	boolean isLose = false;
 	boolean isSound = true; // статус звукового сопровождения
+    boolean isFindOverlap = false;
+    boolean isPressedBack = false;
 
 	int moves; // кол-во ходов в игре
 	int score = 0;
@@ -113,6 +118,8 @@ public class ScreenGame implements Screen {
 		parameter.color = Color.valueOf("#8B0000"); //#960018 был
 		fontWin = generator.generateFont(parameter);
 
+        markingField = new Ball[MAX_COUNT_ROW][MAX_COUNT_IN_ROW]; // Разметка поля
+
 		balls = new ArrayList<>(); // шарики на поле игры
 		ballsAnimate = new ArrayList<>();
 		ballsIndexDelete = new ArrayList<>();
@@ -134,7 +141,9 @@ public class ScreenGame implements Screen {
 
 	void spawnBalls(){
 		switch (LEVEL){
-			case 1: Levels.spawnLevelOne(balls);
+			case 1:
+                //Levels.spawnLevelOne(balls);
+                Levels.makingFirstLevel(markingField);
 				moves = 15;
 				break;
 			case 2: Levels.spawnLevelTwo(balls);
@@ -157,124 +166,108 @@ public class ScreenGame implements Screen {
 		}
 	}
 
-//	int placeYInRow(Ball ball){ // определение места шарика по вертикали
-//		int k = 1;
-//		for (int i = 1; i <= 24; i++){
-//			k += 2;
-//			if (SCR_HEIGHT - k*Ball.height/2 + i*INTERVAL == ball.y)
-//				return i;
-//		}
-//		return 0;
-//	}
-//
-//	int placeXInRow(Ball ball){ // определение места шарика по горизонтали
-//		for (int i = 1; i <= Ball.size; i++)
-//			if ((ball.x == (i-1)*Ball.width + Ball.width/2) ||
-//					(ball.x == (i-1)*Ball.width + Ball.width))
-//				return i;
-//		return 0;
-//	}
+	void setupDeletion(Ball selectBall){
+        selectBall.isExist = false;
+        if (selectBall.placeX != 1 && markingField[selectBall.placeY - 1][selectBall.placeX - 2] != null &&
+            markingField[selectBall.placeY - 1][selectBall.placeX - 2].isExist &&
+            selectBall.type == markingField[selectBall.placeY - 1][selectBall.placeX - 2].type) {
+            // Проверка крайнего левого шара от selectBall
+            setupDeletion(markingField[selectBall.placeY - 1][selectBall.placeX - 2]);
+        }
+        if (((selectBall.placeX != 10 && selectBall.placeY % 2 == 0) || // selectBall в чётном ряду не крайний правый
+            (selectBall.placeX != 11 && selectBall.placeY % 2 != 0)) && // selectBall в нечётном ряду не крайний правый
+            markingField[selectBall.placeY - 1][selectBall.placeX] != null &&
+            markingField[selectBall.placeY - 1][selectBall.placeX].isExist &&
+            selectBall.type == markingField[selectBall.placeY - 1][selectBall.placeX].type) {
+            // Проверка крайнего правого шара от selectBall
+            setupDeletion(markingField[selectBall.placeY - 1][selectBall.placeX]);
+        }
 
-	void deletion(){
-		for (int i = 0; i < balls.size()-1; i++) {
-			if (balls.get(i).x + Ball.width == balls.get(balls.size() - 1).x && balls.get(i).y == balls.get(balls.size()-1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // крайний левый
-				ballsDelete.add(balls.get(i));
-			}
-			if (balls.get(i).x - Ball.width == balls.get(balls.size() - 1).x && balls.get(i).y == balls.get(balls.size()-1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // крайний правый
-				ballsDelete.add(balls.get(i));
-			}
-			if (balls.get(i).x + Ball.width / 2 == balls.get(balls.size() - 1).x &&
-					balls.get(i).y - Ball.height + INTERVAL == balls.get(balls.size() - 1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // левый сверху
-				ballsDelete.add(balls.get(i));
-			}
-			if (balls.get(i).x - Ball.width / 2 == balls.get(balls.size() - 1).x &&
-					balls.get(i).y - Ball.height + INTERVAL == balls.get(balls.size() - 1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // правый сверху
-				ballsDelete.add(balls.get(i));
-			}
-			if (balls.get(i).x + Ball.width / 2 == balls.get(balls.size() - 1).x &&
-					balls.get(i).y + Ball.height - INTERVAL == balls.get(balls.size() - 1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // левый снизу
-				ballsDelete.add(balls.get(i));
-			}
-			if (balls.get(i).x - Ball.width / 2 == balls.get(balls.size() - 1).x &&
-					balls.get(i).y + Ball.height - INTERVAL == balls.get(balls.size() - 1).y &&
-					balls.get(i).type == balls.get(balls.size() - 1).type){
-				ballsIndexDelete.add(i); // правый снизу
-				ballsDelete.add(balls.get(i));
-			}
-		}
+        // Проверка диагонально нижних шаров
+        if (selectBall.placeY != 23) {
+            if (selectBall.placeY % 2 == 0) { // selectBall в чётном ряду
+                if (markingField[selectBall.placeY][selectBall.placeX - 1] != null &&
+                    markingField[selectBall.placeY][selectBall.placeX - 1].isExist &&
+                    selectBall.type == markingField[selectBall.placeY][selectBall.placeX - 1].type) {
+                    // Проверка диагонально нижнего левого шара от выбранного, который в чётном ряду
+                    setupDeletion(markingField[selectBall.placeY][selectBall.placeX - 1]);
+                }
+                if (markingField[selectBall.placeY][selectBall.placeX] != null &&
+                    markingField[selectBall.placeY][selectBall.placeX].isExist &&
+                    selectBall.type == markingField[selectBall.placeY][selectBall.placeX].type) {
+                    // Проверка диагонально нижнего правого шара от выбранного, который в чётном ряду
+                    setupDeletion(markingField[selectBall.placeY][selectBall.placeX]);
+                }
+            } else { // selectBall в нечётном ряду
+                if (selectBall.placeX != 1 && // selectBall не крайний левый
+                    markingField[selectBall.placeY][selectBall.placeX - 2] != null &&
+                    markingField[selectBall.placeY][selectBall.placeX - 2].isExist &&
+                    selectBall.type == markingField[selectBall.placeY][selectBall.placeX - 2].type) {
+                    // Проверка диагонально нижнего левого шара от выбранного, который в нечётном ряду
+                    setupDeletion(markingField[selectBall.placeY][selectBall.placeX - 2]);
+                }
+                if (selectBall.placeX != 11 && // selectBall не крайний правый
+                    markingField[selectBall.placeY][selectBall.placeX - 1] != null &&
+                    markingField[selectBall.placeY][selectBall.placeX - 1].isExist &&
+                    selectBall.type == markingField[selectBall.placeY][selectBall.placeX - 1].type) {
+                    // Проверка диагонально нижнего правого шара от выбранного, который в нечётном ряду
+                    setupDeletion(markingField[selectBall.placeY][selectBall.placeX - 1]);
+                }
+            }
+        }
 
-		while (!ballsDelete.isEmpty()){
-			boolean check;
-			for (int j = 0; j < ballsDelete.size(); j++){
-				for (int i = 0; i < balls.size()-1; i++) {
-					check = true;
-					for (int k = 0; k < ballsIndexDelete.size(); k++)
-						if (i == ballsIndexDelete.get(k)) {  // если шарик уже в списке удаленных, то проверки его не будет
-							check = false;
-							break;
-						}
-					if (check){
-						if (balls.get(i).x + Ball.width == ballsDelete.get(j).x && balls.get(i).y == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // крайний левый
-							ballsDelete.add(balls.get(i));
-						}
-						if (balls.get(i).x - Ball.width == ballsDelete.get(j).x && balls.get(i).y == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // крайний правый
-							ballsDelete.add(balls.get(i));
-						}
-						if (balls.get(i).x + Ball.width / 2 == ballsDelete.get(j).x && balls.get(i).y - Ball.height + INTERVAL == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // левый сверху
-							ballsDelete.add(balls.get(i));
-						}
-						if (balls.get(i).x - Ball.width / 2 == ballsDelete.get(j).x && balls.get(i).y - Ball.height + INTERVAL == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // правый сверху
-							ballsDelete.add(balls.get(i));
-						}
-						if (balls.get(i).x + Ball.width / 2 == ballsDelete.get(j).x && balls.get(i).y + Ball.height - INTERVAL == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // левый снизу
-							ballsDelete.add(balls.get(i));
-						}
-						if (balls.get(i).x - Ball.width / 2 == ballsDelete.get(j).x && balls.get(i).y + Ball.height - INTERVAL == ballsDelete.get(j).y && balls.get(i).type == ballsDelete.get(j).type){
-							ballsIndexDelete.add(i); // правый снизу
-							ballsDelete.add(balls.get(i));
-						}
-					}
-				}
-			}
-			ballsDelete.clear();
-		}
-		if (ballsIndexDelete.size() > 1) {
-			if(isSound) sndBulk.play();
-			ballsIndexDelete.add(balls.size()-1);
-			Collections.sort(ballsIndexDelete); // чтобы правильно удалялись шары
-			for (int i = ballsIndexDelete.size(); i > 0; i--){
-				score += 10;
-				ballsAnimate.add(balls.get(ballsIndexDelete.get(i-1)));
-				balls.remove((int)ballsIndexDelete.get(i-1));
-			}
-		}
-		ballsIndexDelete.clear();
+        // Проверка диагонально верхних шаров
+        if (selectBall.placeY != 1) {
+            // Проверка на недостижение верха
+            if (selectBall.placeY % 2 == 0) { // selectBall в чётном ряду
+                if (markingField[selectBall.placeY - 2][selectBall.placeX - 1] != null &&
+                    markingField[selectBall.placeY - 2][selectBall.placeX - 1].isExist &&
+                    selectBall.type == markingField[selectBall.placeY - 2][selectBall.placeX - 1].type) {
+                    // Проверка диагонально верхнего левого шара от выбранного, который в чётном ряду
+                    setupDeletion(markingField[selectBall.placeY - 2][selectBall.placeX - 1]);
+                }
+                if (markingField[selectBall.placeY - 2][selectBall.placeX ] != null &&
+                    markingField[selectBall.placeY - 2][selectBall.placeX].isExist &&
+                    selectBall.type == markingField[selectBall.placeY - 2][selectBall.placeX].type) {
+                    // Проверка диагонально верхнего правого шара от выбранного, который в чётном ряду
+                    setupDeletion(markingField[selectBall.placeY - 2][selectBall.placeX]);
+                }
+            }
+            else { // selectBall в нечётном ряду
+                if (selectBall.placeX != 1 && // selectBall не крайний левый
+                    markingField[selectBall.placeY - 2][selectBall.placeX - 2] != null &&
+                    markingField[selectBall.placeY - 2][selectBall.placeX - 2].isExist &&
+                    selectBall.type == markingField[selectBall.placeY - 2][selectBall.placeX - 2].type) {
+                    // Проверка диагонально верхнего левого шара от выбранного, который в нечётном ряду
+                    setupDeletion(markingField[selectBall.placeY - 2][selectBall.placeX - 2]);
+                }
+                if (selectBall.placeX != 11 && // selectBall не крайний правый
+                    markingField[selectBall.placeY - 2][selectBall.placeX - 1] != null &&
+                    markingField[selectBall.placeY - 2][selectBall.placeX - 1].isExist &&
+                    selectBall.type == markingField[selectBall.placeY - 2][selectBall.placeX - 1].type) {
+                    // Проверка диагонально верхнего правого шара от выбранного, который в нечётном ряду
+                    setupDeletion(markingField[selectBall.placeY - 2][selectBall.placeX - 1]);
+                }
+            }
+        }
+        ballsDelete.add(selectBall);
 	}
 
-	void spawnNewMainBall(){
+	@SuppressWarnings("SuspiciousIndentation")
+    void spawnNewMainBall(){
+        // Появление нового главного шарика
 		ArrayList<Integer> colorMainBalls = new ArrayList<>();
-		for (int i = 0; i < balls.size(); i++) {
-			if (!colorMainBalls.contains(balls.get(i).type))
-				colorMainBalls.add(balls.get(i).type);
-		}
+        for (int i = 0; i < MAX_COUNT_ROW; i++) {
+            for (int j = 0; j < MAX_COUNT_IN_ROW; j++) {
+                if (markingField[i][j] != null)
+                    if (!colorMainBalls.contains(markingField[i][j].type))
+                        colorMainBalls.add(markingField[i][j].type);
+            }
+        }
 		mainBall = new MainBall(colorMainBalls);
 		oldMainBalls.add(mainBall);
 		if (oldMainBalls.size() > 3)
+        // это наверное проверка на тройное совпадение цвета, хз
 			while (oldMainBalls.get(0) == mainBall &&
 				oldMainBalls.get(1) == mainBall &&
 				oldMainBalls.get(2) == mainBall){
@@ -285,8 +278,8 @@ public class ScreenGame implements Screen {
 	}
 
 	void start() {
+        // Функция запуска уровня с нуля
         score = 0;
-        balls.clear();
         isLose = false;
         isWin = false;
         spawnBalls();
@@ -332,6 +325,26 @@ public class ScreenGame implements Screen {
         loadRecords();
     }
 
+    void clearGameField() {
+        // Очистка игрового поля от шариков
+        for (int i = 0; i < MAX_COUNT_ROW; i++) {
+            for (int j = 0; j < MAX_COUNT_IN_ROW; j++) {
+                if (markingField[i][j] != null)
+                    markingField[i][j] = null;
+            }
+        }
+    }
+
+    boolean gameFieldIsEmpty() {
+        // Проверка на пустоту в первой строке разметки = определение конец или продолжение игры
+        for (int i = 0; i < MAX_COUNT_IN_ROW; i++) {
+            if (markingField[0][i] != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 	@Override
 	public void show() {
 	}
@@ -344,11 +357,41 @@ public class ScreenGame implements Screen {
             musBackground.play();
         }
 
+        if (isPressedBack)
+            isPressedBack = false;
+
+        if (isFindOverlap) {
+            isFindOverlap = false;
+            setupDeletion(mainBall);
+            if (ballsDelete.size() >= 3) {
+                sndBulk.play();
+                // Набирается группа из >= 3 шариков, удаляем их
+                for (Ball ball : ballsDelete) {
+                    ballsAnimate.add(ball);
+                    markingField[ball.placeY - 1][ball.placeX - 1] = null;
+                }
+            }
+            else {
+                // Шарики воскресают! (они умерли в deletion())
+                for (Ball ball : ballsDelete) {
+                    ball.isExist = true;
+                }
+                if (ballsDelete.get(ballsDelete.size() - 1).placeY == 23) {
+                    // Главный шарик остановился прямо перед стоп-линией
+                    isLose = true;
+                    actionsAfterLosing();
+                }
+            }
+            ballsDelete.clear();
+            if (!gameFieldIsEmpty() && !isLose)
+                spawnNewMainBall();
+        }
+
 		if (Gdx.input.justTouched()) {
             // Произведено нажатие
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch); // масштабирование всех координат
-			if (!isLose && !balls.isEmpty() && !mainBall.fly) {
+			if (!isLose && !gameFieldIsEmpty() && !mainBall.fly) {
                 // главный шарик не был в полёте
 				moves -= 1;
 				mainBall.fly = true;
@@ -379,12 +422,15 @@ public class ScreenGame implements Screen {
 			if (btnBack.isHit(touch.x, touch.y)){
                 // Произведено нажатие на маленькую кнопку "назад"
                 musBackground.stop();
-				balls.clear();
+                clearGameField();
+                isPressedBack = true;
 				bub.setScreen(bub.screenLevels);
 			}
 
 			if ((isWin || isLose) && btnRetry.isHit(touch.x, touch.y)) {
 				// При победе/поражении нажата кнопка "повторить"
+                if (isLose)
+                    clearGameField();
                 start();
             }
 
@@ -395,113 +441,115 @@ public class ScreenGame implements Screen {
 
             if (isLose && btnReturn.isHit(touch.x, touch.y)){
                 // При проигрыше нажата кнопка "вернуться"
-				balls.clear();
+                clearGameField();
 				bub.setScreen(bub.screenLevels);
 			}
 		}
 
-		if (!balls.isEmpty() && !isLose) mainBall.move();
+		if (!gameFieldIsEmpty() && !isLose) {
+            // Определяет двигаться главному шарику дальше или нет
+            mainBall.move();
+        }
 
-		if (!isLose && !balls.isEmpty() && mainBall.y >= SCR_HEIGHT - Ball.height/2) {
+		if (!isLose && !gameFieldIsEmpty() && mainBall.y >= SCR_HEIGHT - Ball.height/2) {
             // Шарик вылетает за пределы верхнего поля
 			score -= 5;
 			spawnNewMainBall();
 		}
 
         if (!isLose || !isWin) {
-            for (int i = 0; i < balls.size(); i++) {
-                if (mainBall.overlap(balls.get(i))) {
-                    // Произошло наложение главного шарика на текущий шарик
-                    if (mainBall.y >= balls.get(i).y) {
-                        // Главный шарик наложился выше или на уровне горизонта текущего шарика
-                        mainBall.y = balls.get(i).y;
-                        mainBall.placeY = balls.get(i).placeY;
-                        if (mainBall.x < balls.get(i).x) {
-                            // Главный шарик наложился СТРОГО левее вертикали текущего шарика
-                            if (balls.get(i).placeX != 1) { // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ЛЕВЕЕ КРАЙНЕГО СЛЕВА
-                                // Текущий шарик не является крайним слева
-                                mainBall.x = balls.get(i).x - Ball.width;
-                                mainBall.placeX = balls.get(i).placeX - 1;
-                            }
-                        } else
-                            // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
-                            if ((balls.get(i).placeX != 11 && balls.get(i).placeY % 2 != 0) || // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ПРАВЕЕ КРАЙНЕГО СПРАВА
-                                (balls.get(i).placeX != 10 && balls.get(i).placeY % 2 == 0)) {
-                                // Текущий шарик НЕ является крайним справа
-                                mainBall.x = balls.get(i).x + Ball.width;
-                                mainBall.placeX = balls.get(i).placeX + 1;
-                            }
-                    } else {
-                        // Главный шарик наложился ниже горизонта текущего шарика
-                        mainBall.y = balls.get(i).y - Ball.height + INTERVAL;
-                        mainBall.placeY = balls.get(i).placeY + 1;
-                        if (mainBall.x < balls.get(i).x) {
-                            // Главный шарик наложился СТРОГО левее вертикали текущего шарика
-                            if (balls.get(i).placeY % 2 == 0) {
-                                // Текущий шарик находится в ЧЁТНОМ ряду
-                                mainBall.x = balls.get(i).x - Ball.width / 2;
-                                mainBall.placeX = balls.get(i).placeX; // СЛЕВА место в нечётном = место в чётном
-                            } else {
-                                // Текущий шарик находится в НЕЧЁТНОМ ряду
-                                if (balls.get(i).placeX != 1) {
-                                    // Текущий шарик НЕ является крайним слева
-                                    mainBall.x = balls.get(i).x - Ball.width / 2;
-                                    mainBall.placeX = balls.get(i).placeX - 1;
+            // Проверка наложения главного шарика на какой-либо
+            int i = MAX_COUNT_ROW - 2;
+            while (i >= 0 && !isFindOverlap) {
+                for (int j = 0; j < MAX_COUNT_IN_ROW; j++) {
+                    if (markingField[i][j] != null) {
+                        if (mainBall.overlap(markingField[i][j])) {
+                            // Произошло наложение главного шарика на текущий шарик
+                            isFindOverlap = true;
+                            mainBall.fly = false; // главный шарик остановился
+                            mainBall.vx = 0; // скоростьX = 0
+                            mainBall.vy = 0; // скоростьY = 0
+                            if (mainBall.y >= markingField[i][j].y) {
+                                // Главный шарик наложился выше или на уровне горизонта текущего шарика
+                                mainBall.y = markingField[i][j].y;
+                                mainBall.placeY = markingField[i][j].placeY;
+                                if (mainBall.x < markingField[i][j].x) {
+                                    // Главный шарик наложился СТРОГО левее вертикали текущего шарика
+                                    if (markingField[i][j].placeX != 1) { // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ЛЕВЕЕ КРАЙНЕГО СЛЕВА
+                                        // Текущий шарик не является крайним слева
+                                        mainBall.x = markingField[i][j].x - Ball.width;
+                                        mainBall.placeX = markingField[i][j].placeX - 1;
+                                    }
                                 } else {
-                                    // Текущий шарик является крайним слева
-                                    mainBall.x = balls.get(i).x + Ball.width / 2;
-                                    mainBall.placeX = balls.get(i).placeX; // СПРАВА место в чётном = место в нечётном
+                                    // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
+                                    if ((markingField[i][j].placeX != 11 && markingField[i][j].placeY % 2 != 0) || // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ПРАВЕЕ КРАЙНЕГО СПРАВА
+                                        (markingField[i][j].placeX != 10 && markingField[i][j].placeY % 2 == 0)) {
+                                        // Текущий шарик НЕ является крайним справа
+                                        mainBall.x = markingField[i][j].x + Ball.width;
+                                        mainBall.placeX = markingField[i][j].placeX + 1;
+                                    }
+                                }
+                            } else {
+                                // Главный шарик наложился ниже горизонта текущего шарика
+                                mainBall.y = markingField[i][j].y - Ball.height + INTERVAL;
+                                mainBall.placeY = markingField[i][j].placeY + 1;
+                                if (mainBall.x < markingField[i][j].x) {
+                                    // Главный шарик наложился СТРОГО левее вертикали текущего шарика
+                                    if (markingField[i][j].placeY % 2 == 0) {
+                                        // Текущий шарик находится в ЧЁТНОМ ряду
+                                        mainBall.x = markingField[i][j].x - Ball.width / 2;
+                                        mainBall.placeX = markingField[i][j].placeX; // СЛЕВА место в нечётном = место в чётном
+                                    } else {
+                                        // Текущий шарик находится в НЕЧЁТНОМ ряду
+                                        if (markingField[i][j].placeX != 1) {
+                                            // Текущий шарик НЕ является крайним слева
+                                            mainBall.x = markingField[i][j].x - Ball.width / 2;
+                                            mainBall.placeX = markingField[i][j].placeX - 1;
+                                        } else {
+                                            // Текущий шарик является крайним слева
+                                            mainBall.x = markingField[i][j].x + Ball.width / 2;
+                                            mainBall.placeX = markingField[i][j].placeX; // СПРАВА место в чётном = место в нечётном
+                                        }
+                                    }
+                                } else {
+                                    // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
+                                    if (markingField[i][j].placeY % 2 == 0) {
+                                        // Текущий шарик находится в ЧЁТНОМ ряду
+                                        mainBall.x = markingField[i][j].x + Ball.width / 2;
+                                        mainBall.placeX = markingField[i][j].placeX + 1;
+                                    } else {
+                                        // Текущий шарик находится в НЕЧЁТНОМ ряду
+                                        if (markingField[i][j].placeX != 11) {
+                                            // Текущий шарик НЕ является крайним справа
+                                            mainBall.x = markingField[i][j].x + Ball.width / 2;
+                                            mainBall.placeX = markingField[i][j].placeX; // СПРАВА место в чётном = место в нечётном
+                                        } else {
+                                            // Текущий шарик является крайним справа
+                                            mainBall.x = markingField[i][j].x - Ball.width / 2;
+                                            mainBall.placeX = markingField[i][j].placeX - 1;
+                                        }
+                                    }
                                 }
                             }
-                        } else {
-                            // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
-                            if (balls.get(i).placeY % 2 == 0) {
-                                // Текущий шарик находится в ЧЁТНОМ ряду
-                                mainBall.x = balls.get(i).x + Ball.width / 2;
-                                mainBall.placeX = balls.get(i).placeX + 1;
-                            } else {
-                                // Текущий шарик находится в НЕЧЁТНОМ ряду
-                                if (balls.get(i).placeX != 11) {
-                                    // Текущий шарик НЕ является крайним справа
-                                    mainBall.x = balls.get(i).x + Ball.width / 2;
-                                    mainBall.placeX = balls.get(i).placeX; // СПРАВА место в чётном = место в нечётном
-                                } else {
-                                    // Текущий шарик является крайним справа
-                                    mainBall.x = balls.get(i).x - Ball.width / 2;
-                                    mainBall.placeX = balls.get(i).placeX - 1;
-                                }
-                            }
+                            markingField[mainBall.placeY - 1][mainBall.placeX - 1] = mainBall; // садим шарик на поле
+                            break;
                         }
                     }
-                    mainBall.vx = 0;
-                    mainBall.vy = 0;
-                    balls.add(mainBall);
-                    if (!isLose) {
-                        deletion();
-                        if (!balls.isEmpty())
-                            spawnNewMainBall();
-                    }
-                    break;
                 }
-
-                if (balls.get(i).placeY == 23) {
-                    if (!isLose) {
-                        isLose = true;
-                        actionsAfterLosing();
-                        break;
-                    }
-                }
+                i -= 1;
             }
         }
 
-		for (int i = 0; i < ballsAnimate.size(); i++){
+        // Логика анимации
+		for (int i = ballsAnimate.size() - 1; i >= 0; i--) {
 			ballsAnimate.get(i).animation();
 			if (ballsAnimate.get(i).phase == Ball.nFaz){
+                score += 5 ;
 				ballsAnimate.remove(i);
 			}
 		}
 
-        if (LEVEL != 6 && moves == 0 && !balls.isEmpty() && !mainBall.fly) {
+        if (LEVEL != 6 && moves == 0 && !gameFieldIsEmpty() && !mainBall.fly) {
             // Игра проиграна
             if (!isLose) {
                 isLose = true;
@@ -509,9 +557,9 @@ public class ScreenGame implements Screen {
             }
         }
 
-        if (balls.isEmpty() && !isLose){
+        if (gameFieldIsEmpty() && !isLose){
             // Игра выиграна
-            if (!isWin){
+            if (!isWin && !isPressedBack){
                 isWin = true;
                 if (isSound) {
                     musBackground.stop();
@@ -523,29 +571,41 @@ public class ScreenGame implements Screen {
         }
 
 
-
-
 		// рисовка
 		ScreenUtils.clear(0, 0, 0.2f, 0);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined); // масштабирование всех координат
 		batch.begin();
+        // Рисование заднего фона
 		if (LEVEL <= 3)
 			batch.draw(imgBackgroundLevelFirst, 0, 0, SCR_WIDTH, SCR_HEIGHT);
 		else
 			batch.draw(imgBackgroundLevelSecond, 0, 0, SCR_WIDTH, SCR_HEIGHT);
+
 		if (!isLose && LEVEL != 6) {
             // рисование количества оставшихся ходов (6 уровень - бесконечный, поэтому исключение)
             font.draw(batch, Integer.toString(moves), SCR_WIDTH * 55 / 100f, SCR_HEIGHT / 20f);
         }
+
 		font.draw(batch, "СЧЁТ: " + score, 0, SCR_HEIGHT - Ball.width/6f);
 		font.draw(batch, "УРОВЕНЬ: " + LEVEL, SCR_WIDTH*62/100f, SCR_HEIGHT - Ball.width/6f);
+
 		for (int i = 0; i < ballsAnimate.size(); i++)
+            // Рисование поэтапного разрушения шарика
 			drawPhases(ballsAnimate.get(i));
-		for (int i = 0; i < balls.size(); i++) // рисование всех шариков на поле
-			batch.draw(imgBall[balls.get(i).type],balls.get(i).x - Ball.width/2f, balls.get(i).y - Ball.height/2f, Ball.width, Ball.height);
-		if (!balls.isEmpty())
+
+        for (int i = 0; i < MAX_COUNT_ROW; i++) {
+            // Рисование всех шариков на поле
+            for (int j = 0; j < MAX_COUNT_IN_ROW; j++) {
+                if (markingField[i][j] != null)
+                    batch.draw(imgBall[markingField[i][j].type],markingField[i][j].x - Ball.width/2f, markingField[i][j].y - Ball.height/2f, Ball.width, Ball.height);
+            }
+        }
+
+		if (!isLose && !isWin)
+            // Рисование главного шарика
 			batch.draw(imgBall[mainBall.type], mainBall.x - Ball.width/2f, mainBall.y - Ball.height/2f, Ball.width, Ball.height);
+
 		if (isLose){
 			batch.draw(imgFrame, frame.x, frame.y, frame.width, frame.height);
 			fontWin.draw(batch, "Вы проиграли :(", SCR_WIDTH/7f, SCR_HEIGHT/1.4f);
@@ -554,7 +614,7 @@ public class ScreenGame implements Screen {
 			fontWin.draw(batch, btnRetry.text, btnRetry.x, btnRetry.y);
 			fontWin.draw(batch, btnReturn.text, btnReturn.x, btnReturn.y);
 		}
-		if (balls.isEmpty()){
+		if (isWin){
 			batch.draw(imgFrame, frame.x, frame.y, frame.width, frame.height);
 			fontWin.draw(batch, "Вы выиграли :)", SCR_WIDTH/6f, SCR_HEIGHT/1.4f);
 			fontWin.draw(batch, "Рекорд: " + record, SCR_WIDTH/7f, SCR_HEIGHT/1.58f);

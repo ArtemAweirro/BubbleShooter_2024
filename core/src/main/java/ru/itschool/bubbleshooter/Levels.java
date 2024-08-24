@@ -7,60 +7,60 @@ import com.badlogic.gdx.math.MathUtils;
 import java.util.ArrayList;
 
 public class Levels {
-    static void spawnLevelOne(ArrayList<Ball> balls){
-        balls.add(new Ball(2*INTERVAL + Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 2, 1));
-        balls.add(new Ball(2*INTERVAL + 2*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 3, 1));
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 4, 1));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 5, 1));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 6, 1));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 7, 1));
-        balls.add(new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 8, 1));
-        balls.add(new Ball(2*INTERVAL + 8*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 9, 1));
-        balls.add(new Ball(2*INTERVAL + 9*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 10, 1));
+    static void makingFirstLevel(Ball[][] marking) {
+        marking[0][1] = new Ball(2*INTERVAL + Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 2, 1);
+        marking[0][2] = new Ball(2*INTERVAL + 2*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 3, 1);
+        marking[0][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 3, 4, 1);
+        marking[0][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 5, 1);
+        marking[0][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 6, 1);
+        marking[0][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 2, 7, 1);
+        marking[0][7] = new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 8, 1);
+        marking[0][8] = new Ball(2*INTERVAL + 8*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 9, 1);
+        marking[0][9] = new Ball(2*INTERVAL + 9*Ball.width + Ball.width/2, SCR_HEIGHT - 3*Ball.height/2 + INTERVAL, 0, 10, 1);
 
-        balls.add(new Ball(2*INTERVAL + Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 2, 2));
-        balls.add(new Ball(2*INTERVAL + 2*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 3, 2));
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 4, 2));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 2, 5, 2));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 2, 6, 2));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 7, 2));
-        balls.add(new Ball(2*INTERVAL + 7*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 8, 2));
-        balls.add(new Ball(2*INTERVAL + 8*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 9, 2));
+        marking[1][1] = new Ball(2*INTERVAL + Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 2, 2);
+        marking[1][2] = new Ball(2*INTERVAL + 2*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 3, 2);
+        marking[1][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 4, 2);
+        marking[1][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 2, 5, 2);
+        marking[1][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 2, 6, 2);
+        marking[1][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 3, 7, 2);
+        marking[1][7] = new Ball(2*INTERVAL + 7*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 8, 2);
+        marking[1][8] = new Ball(2*INTERVAL + 8*Ball.width + Ball.width, SCR_HEIGHT - 5*Ball.height/2 + 2*INTERVAL, 0, 9, 2);
 
-        balls.add(new Ball(2*INTERVAL + 2*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 3, 3));
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 4, 3));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 5, 3));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 2, 6, 3));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 7, 3));
-        balls.add(new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 8, 3));
-        balls.add(new Ball(2*INTERVAL + 8*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 9, 3));
+        marking[2][2] = new Ball(2*INTERVAL + 2*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 3, 3);
+        marking[2][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 4, 3);
+        marking[2][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 5, 3);
+        marking[2][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 2, 6, 3);
+        marking[2][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 7, 3);
+        marking[2][7] = new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 3, 8, 3);
+        marking[2][8] = new Ball(2*INTERVAL + 8*Ball.width + Ball.width/2, SCR_HEIGHT - 7*Ball.height/2 + 3*INTERVAL, 0, 9, 3);
 
-        balls.add(new Ball(2*INTERVAL + 2*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 3, 4));
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 4, 4));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 5, 4));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 6, 4));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 7, 4));
-        balls.add(new Ball(2*INTERVAL + 7*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 8, 4));
+        marking[3][2] = new Ball(2*INTERVAL + 2*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 3, 4);
+        marking[3][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 4, 4);
+        marking[3][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 0, 5, 4);
+        marking[3][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 6, 4);
+        marking[3][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 7, 4);
+        marking[3][7] = new Ball(2*INTERVAL + 7*Ball.width + Ball.width, SCR_HEIGHT - 9*Ball.height/2 + 4*INTERVAL, 3, 8, 4);
 
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 4, 5));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 5, 5));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 6, 5));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 7, 5));
-        balls.add(new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 8, 5));
+        marking[4][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 4, 5);
+        marking[4][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 5, 5);
+        marking[4][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 6, 5);
+        marking[4][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 7, 5);
+        marking[4][7] = new Ball(2*INTERVAL + 7*Ball.width + Ball.width/2, SCR_HEIGHT - 11*Ball.height/2 + 5*INTERVAL, 2, 8, 5);
 
-        balls.add(new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 4, 6));
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 5, 6));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 6, 6));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 7, 6));
+        marking[5][3] = new Ball(2*INTERVAL + 3*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 4, 6);
+        marking[5][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 5, 6);
+        marking[5][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 6, 6);
+        marking[5][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width, SCR_HEIGHT - 13*Ball.height/2 + 6*INTERVAL, 2, 7, 6);
 
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 5, 7));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 6, 7));
-        balls.add(new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 7, 7));
+        marking[6][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 5, 7);
+        marking[6][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 6, 7);
+        marking[6][6] = new Ball(2*INTERVAL + 6*Ball.width + Ball.width/2, SCR_HEIGHT - 15*Ball.height/2 + 7*INTERVAL, 2, 7, 7);
 
-        balls.add(new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 17*Ball.height/2 + 8*INTERVAL, 2, 5, 8));
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 17*Ball.height/2 + 8*INTERVAL, 2, 6, 8));
+        marking[7][4] = new Ball(2*INTERVAL + 4*Ball.width + Ball.width, SCR_HEIGHT - 17*Ball.height/2 + 8*INTERVAL, 2, 5, 8);
+        marking[7][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width, SCR_HEIGHT - 17*Ball.height/2 + 8*INTERVAL, 2, 6, 8);
 
-        balls.add(new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 19*Ball.height/2 + 9*INTERVAL, 2, 6, 9));
+        marking[8][5] = new Ball(2*INTERVAL + 5*Ball.width + Ball.width/2, SCR_HEIGHT - 19*Ball.height/2 + 9*INTERVAL, 2, 6, 9);
     }
 
     static void spawnLevelTwo(ArrayList<Ball> balls){

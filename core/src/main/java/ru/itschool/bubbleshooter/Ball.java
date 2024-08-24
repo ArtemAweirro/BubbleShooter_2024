@@ -10,10 +10,10 @@ public class Ball {
     static int height = width = (int) (ScreenGame.SCR_WIDTH/11.5f);
     int type;
     int placeX, placeY; // место в ряду
-    boolean isExist;
     int phase;
     static int nFaz = 3;
     long timePhaseInterval = 100, timeLastPhaseShow;
+    boolean isExist;
 
     public Ball(int x, int y, int type, int placeX, int placeY) {
         this.x = x;
