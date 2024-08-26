@@ -64,6 +64,8 @@ public class ScreenGame implements Screen {
 	boolean isSound = true; // статус звукового сопровождения
     boolean isFindOverlap = false;
     boolean isPressedBack = false;
+    boolean isGameFieldEmpty = false;
+    static int shiftBallPlaceY = 0; // множитель 0/1, т.к. в 6 уровне четность рядов меняется при смещении
 
 	int moves; // кол-во ходов в игре
 	int score = 0;
@@ -142,25 +144,28 @@ public class ScreenGame implements Screen {
 	void spawnBalls(){
 		switch (LEVEL){
 			case 1:
-                //Levels.spawnLevelOne(balls);
                 Levels.makingFirstLevel(markingField);
 				moves = 15;
 				break;
-			case 2: Levels.spawnLevelTwo(balls);
+			case 2:
+                Levels.makingSecondLevel(markingField);
 				moves = 30;
 				break;
-			case 3: Levels.spawnLevelThree(balls);
+			case 3:
+                //Levels.makingThirdLevel(markingField);
 				moves = 25;
 				break;
-			case 4: Levels.spawnLevelFour(balls);
+			case 4:
+                Levels.makingFourthLevel(markingField);
 				moves = 33;
 				break;
-			case 5: Levels.spawnLevelFive(balls);
+			case 5:
+                Levels.makingFifthLevel(markingField);
 				moves = 25;
 				break;
 			case 6:
 				bub.screenSettings.loadSettings();
-				Levels.spawnLevelSix(balls, countRows);
+				Levels.makingSixthLevel(markingField, countRows);
 				moves = 0;
 				break;
 		}
@@ -174,8 +179,8 @@ public class ScreenGame implements Screen {
             // Проверка крайнего левого шара от selectBall
             setupDeletion(markingField[selectBall.placeY - 1][selectBall.placeX - 2]);
         }
-        if (((selectBall.placeX != 10 && selectBall.placeY % 2 == 0) || // selectBall в чётном ряду не крайний правый
-            (selectBall.placeX != 11 && selectBall.placeY % 2 != 0)) && // selectBall в нечётном ряду не крайний правый
+        if (((selectBall.placeX != 10 && (selectBall.placeY + shiftBallPlaceY) % 2 == 0) || // selectBall в чётном ряду не крайний правый
+            (selectBall.placeX != 11 && (selectBall.placeY + shiftBallPlaceY) % 2 != 0)) && // selectBall в нечётном ряду не крайний правый
             markingField[selectBall.placeY - 1][selectBall.placeX] != null &&
             markingField[selectBall.placeY - 1][selectBall.placeX].isExist &&
             selectBall.type == markingField[selectBall.placeY - 1][selectBall.placeX].type) {
@@ -185,7 +190,7 @@ public class ScreenGame implements Screen {
 
         // Проверка диагонально нижних шаров
         if (selectBall.placeY != 23) {
-            if (selectBall.placeY % 2 == 0) { // selectBall в чётном ряду
+            if ((selectBall.placeY + shiftBallPlaceY) % 2 == 0) { // selectBall в чётном ряду
                 if (markingField[selectBall.placeY][selectBall.placeX - 1] != null &&
                     markingField[selectBall.placeY][selectBall.placeX - 1].isExist &&
                     selectBall.type == markingField[selectBall.placeY][selectBall.placeX - 1].type) {
@@ -219,7 +224,7 @@ public class ScreenGame implements Screen {
         // Проверка диагонально верхних шаров
         if (selectBall.placeY != 1) {
             // Проверка на недостижение верха
-            if (selectBall.placeY % 2 == 0) { // selectBall в чётном ряду
+            if ((selectBall.placeY + shiftBallPlaceY) % 2 == 0) { // selectBall в чётном ряду
                 if (markingField[selectBall.placeY - 2][selectBall.placeX - 1] != null &&
                     markingField[selectBall.placeY - 2][selectBall.placeX - 1].isExist &&
                     selectBall.type == markingField[selectBall.placeY - 2][selectBall.placeX - 1].type) {
@@ -282,6 +287,8 @@ public class ScreenGame implements Screen {
         score = 0;
         isLose = false;
         isWin = false;
+        isGameFieldEmpty = false;
+        shiftBallPlaceY = 0;
         spawnBalls();
         spawnNewMainBall();
         if (isSound) {
@@ -318,7 +325,6 @@ public class ScreenGame implements Screen {
 	}
 
     void actionsAfterLosing() {
-        mainBall.y = -Ball.height; // сомнительно, но окэй
         musBackground.stop();
         sndLose.play();
         saveRecords(score);
@@ -349,7 +355,8 @@ public class ScreenGame implements Screen {
 	public void show() {
 	}
 
-	@Override
+	@SuppressWarnings("SuspiciousIndentation")
+    @Override
 	public void render(float delta) {
 		// игровые события
 		if (isSound && !musBackground.isPlaying() && !isWin && !isLose) {
@@ -383,7 +390,7 @@ public class ScreenGame implements Screen {
                 }
             }
             ballsDelete.clear();
-            if (!gameFieldIsEmpty() && !isLose)
+            if (!(isGameFieldEmpty = gameFieldIsEmpty()) && !isLose)
                 spawnNewMainBall();
         }
 
@@ -391,7 +398,7 @@ public class ScreenGame implements Screen {
             // Произведено нажатие
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch); // масштабирование всех координат
-			if (!isLose && !gameFieldIsEmpty() && !mainBall.fly) {
+			if (!isLose && !isGameFieldEmpty && !mainBall.fly) {
                 // главный шарик не был в полёте
 				moves -= 1;
 				mainBall.fly = true;
@@ -416,7 +423,7 @@ public class ScreenGame implements Screen {
 
 			if (LEVEL == 6 && moves != 0 && moves%5 == 0) {
                 // Добавляем новый ряд в 6 уровне
-                Levels.moveLevelSix(balls);
+                Levels.moveLevelSix(markingField);
             }
 
 			if (btnBack.isHit(touch.x, touch.y)){
@@ -434,9 +441,17 @@ public class ScreenGame implements Screen {
                 start();
             }
 
-			if (isWin && btnContinue.isHit(touch.x, touch.y)) {
+			if (isWin) {
                 // При победе нажата кнопка "продолжить"
-				bub.setScreen(bub.screenLevels);
+                // Переход на следующий уровень
+                if (LEVEL != 6 && btnContinue.isHit(touch.x, touch.y)) {
+                    LEVEL += 1;
+                    start();
+                }
+                else if (btnReturn.isHit(touch.x, touch.y)) {
+                    clearGameField();
+                    bub.setScreen(bub.screenLevels);
+                }
             }
 
             if (isLose && btnReturn.isHit(touch.x, touch.y)){
@@ -446,18 +461,18 @@ public class ScreenGame implements Screen {
 			}
 		}
 
-		if (!gameFieldIsEmpty() && !isLose) {
+		if (!isGameFieldEmpty && !isLose) {
             // Определяет двигаться главному шарику дальше или нет
             mainBall.move();
         }
 
-		if (!isLose && !gameFieldIsEmpty() && mainBall.y >= SCR_HEIGHT - Ball.height/2) {
+		if (!isLose && !isGameFieldEmpty && mainBall.y >= SCR_HEIGHT - Ball.height/2) {
             // Шарик вылетает за пределы верхнего поля
 			score -= 5;
 			spawnNewMainBall();
 		}
 
-        if (!isLose || !isWin) {
+        if (!isLose && !isWin) {
             // Проверка наложения главного шарика на какой-либо
             int i = MAX_COUNT_ROW - 2;
             while (i >= 0 && !isFindOverlap) {
@@ -482,8 +497,8 @@ public class ScreenGame implements Screen {
                                     }
                                 } else {
                                     // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
-                                    if ((markingField[i][j].placeX != 11 && markingField[i][j].placeY % 2 != 0) || // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ПРАВЕЕ КРАЙНЕГО СПРАВА
-                                        (markingField[i][j].placeX != 10 && markingField[i][j].placeY % 2 == 0)) {
+                                    if ((markingField[i][j].placeX != 11 && (markingField[i][j].placeY + shiftBallPlaceY) % 2 != 0) || // -- ПО-ХОРОШЕМУ ОН ЧИСТО ФИЗИЧЕСКИ НЕ СМОЖЕТ ОКАЗАТЬСЯ ПРАВЕЕ КРАЙНЕГО СПРАВА
+                                        (markingField[i][j].placeX != 10 && (markingField[i][j].placeY + shiftBallPlaceY) % 2 == 0)) {
                                         // Текущий шарик НЕ является крайним справа
                                         mainBall.x = markingField[i][j].x + Ball.width;
                                         mainBall.placeX = markingField[i][j].placeX + 1;
@@ -495,7 +510,7 @@ public class ScreenGame implements Screen {
                                 mainBall.placeY = markingField[i][j].placeY + 1;
                                 if (mainBall.x < markingField[i][j].x) {
                                     // Главный шарик наложился СТРОГО левее вертикали текущего шарика
-                                    if (markingField[i][j].placeY % 2 == 0) {
+                                    if ((markingField[i][j].placeY + shiftBallPlaceY) % 2  == 0) {
                                         // Текущий шарик находится в ЧЁТНОМ ряду
                                         mainBall.x = markingField[i][j].x - Ball.width / 2;
                                         mainBall.placeX = markingField[i][j].placeX; // СЛЕВА место в нечётном = место в чётном
@@ -513,7 +528,7 @@ public class ScreenGame implements Screen {
                                     }
                                 } else {
                                     // Главный шарик наложился НЕСТРОГО правее вертикали текущего шарика
-                                    if (markingField[i][j].placeY % 2 == 0) {
+                                    if ((markingField[i][j].placeY + shiftBallPlaceY) % 2 == 0) {
                                         // Текущий шарик находится в ЧЁТНОМ ряду
                                         mainBall.x = markingField[i][j].x + Ball.width / 2;
                                         mainBall.placeX = markingField[i][j].placeX + 1;
@@ -549,7 +564,7 @@ public class ScreenGame implements Screen {
 			}
 		}
 
-        if (LEVEL != 6 && moves == 0 && !gameFieldIsEmpty() && !mainBall.fly) {
+        if (LEVEL != 6 && moves == 0 && !isGameFieldEmpty && !mainBall.fly) {
             // Игра проиграна
             if (!isLose) {
                 isLose = true;
@@ -557,7 +572,7 @@ public class ScreenGame implements Screen {
             }
         }
 
-        if (gameFieldIsEmpty() && !isLose){
+        if (isGameFieldEmpty && !isLose){
             // Игра выиграна
             if (!isWin && !isPressedBack){
                 isWin = true;
@@ -620,7 +635,10 @@ public class ScreenGame implements Screen {
 			fontWin.draw(batch, "Рекорд: " + record, SCR_WIDTH/7f, SCR_HEIGHT/1.58f);
 			fontWin.draw(batch, "Ваш счёт: " + score, SCR_WIDTH/7f, SCR_HEIGHT/1.75f);
 			fontWin.draw(batch, btnRetry.text, btnRetry.x, btnRetry.y);
-			fontWin.draw(batch, btnContinue.text, btnContinue.x, btnContinue.y);
+            if (LEVEL != 6)
+    			fontWin.draw(batch, btnContinue.text, btnContinue.x, btnContinue.y);
+            else
+                fontWin.draw(batch, btnReturn.text, btnReturn.x, btnReturn.y);
 		}
 		batch.draw(imgBtnBack, btnBack.x, btnBack.y, btnBack.width, btnBack.height);
 		batch.end();
